@@ -9,7 +9,19 @@ export default defineTool({
         const services = listServices(query);
 
         if (services.length === 0) {
-            return { matched: false, services: [], message: "No services found matching your query. Don't quote a price; offer the list instead." };
+            return {
+                matched: false,
+                services: listServices().map((s) => ({
+                    id: s.id,
+                    name: s.name,
+                    description: s.description,
+                    price: formatUsd(s.priceCents),
+                    estMinutes: s.estMinutes,
+                })),
+                message: "No direct match. This is the full catalog for your reference only; don't list it to the customer. " +
+                    "If one service clearly fits what they described, suggest it with its price. " +
+                    "Otherwise, say the shop doesn't offer that and ask if they'd like to see what's available.",
+            };
         }
 
         return {
