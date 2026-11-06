@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils";
 import { AgentMessage } from "./agent-message";
 import { WEB_CHAT_AGENT } from "@/app/eve-agent";
 
-const DEFAULT_AGENT_NAME = "spoke-and-mirror";
+const DEFAULT_AGENT_NAME = "Spoke & Mirror";
 const AGENT_NAME = WEB_CHAT_AGENT ?? DEFAULT_AGENT_NAME;
 
 export function AgentChat({
@@ -65,9 +65,9 @@ export function AgentChat({
       sessionId === undefined
         ? undefined
         : {
-            sessionId,
-            streamIndex: 0,
-          },
+          sessionId,
+          streamIndex: 0,
+        },
     resume: sessionId !== undefined,
     onSessionChange(session) {
       if (hasSubmittedMessage.current && session !== undefined) {
@@ -188,8 +188,8 @@ export function AgentChat({
           <ConversationContent className="mx-auto w-full max-w-3xl gap-6 px-4 pt-20 pb-36 sm:px-6">
             {agent.messages.map((message) =>
               showPendingThinking &&
-              isPendingAssistantShell &&
-              message.id === lastMessage.id ? null : (
+                isPendingAssistantShell &&
+                message.id === lastMessage.id ? null : (
                 <AgentMessage
                   canRespond={canRespond}
                   key={message.id}
