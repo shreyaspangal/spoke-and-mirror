@@ -1,20 +1,25 @@
 import { eveChannel } from "eve/channels/eve";
 import { localDev, vercelOidc, type AuthFn } from "eve/channels/auth";
+import { getCustomer } from "../lib/auth.js";
 
-// TEMPORARY testing door: read a tier from a header so we can exercise the
-// per-tier playbook locally. We replace this with a real auth policy in 4.3.
-const demoTierAuth: AuthFn<Request> = async (request) => {
-  const tier = request.headers.get("x-shop-tier");
-  if (!tier) return null;
+const appAuth: AuthFn<Request> = async (request) => {
+  const customer = getCustomer(request);
+  if (!customer) return null; // not one of our customers → fall through
+
+  // The tier comes from the customer's record, not from the request. The
+  // per-tier playbook (agent/skills/shop-playbook.ts) reads it from here.
+  const attributes: Record<string, string> = {};
+  if (customer.tier) attributes.tier = customer.tier;
+
   return {
-    attributes: { tier },
+    principalId: customer.id,
     principalType: "user",
-    principalId: "demo-customer",
-    authenticator: "demo",
+    authenticator: "app",
+    issuer: "spoke-and-mirror",
+    attributes,
   };
 };
 
 export default eveChannel({
-  // Order matters: first entry to admit the request wins. Keep localDev() so the TUI still works.
-  auth: [demoTierAuth, vercelOidc(), localDev()],
+  auth: [appAuth, vercelOidc(), localDev()],
 });
